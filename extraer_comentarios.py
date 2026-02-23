@@ -241,11 +241,11 @@ class SocialMediaScraper:
         Elimina duplicados de los items devueltos por Apify.
     
         Args:
-            items: Lista de items de Apify
-            platform: Nombre de la plataforma
+        items: Lista de items de Apify
+        platform: Nombre de la plataforma
         
         Returns:
-            List[dict]: Items únicos
+        List[dict]: Items únicos
         """
         if not items:
             return items
@@ -373,16 +373,10 @@ class SocialMediaScraper:
         try:
             logger.info(f"Processing Facebook Post {post_number}: {url}")
         
-            # ✅ Parámetros corregidos para Facebook
             run_input = {
-                "startUrls": [{"url": self.clean_url(url)}],
-                "maxComments": max_comments,
-                "maxPostComments": max_comments,  # Redundancia para asegurar límite
-                "commentsMode": "RANKED_UNFILTERED",  # Obtener todos los comentarios
-                "scrapeReplies": True  # Incluir respuestas si quieres
+                "startUrls": [{"url": self.clean_url(url)}], 
+                "maxComments": max_comments
             }
-            
-            logger.info(f"Facebook run_input: {run_input}")  # Debug
         
             run = self.client.actor("apify/facebook-comments-scraper").call(
                 run_input=run_input
@@ -402,7 +396,7 @@ class SocialMediaScraper:
         
             logger.info(f"Extraction complete: {len(items)} items found.")
         
-            # Deduplicación manual post-extracción
+            # ✅ NUEVO: DEDUPLICACIÓN MANUAL POST-EXTRACCIÓN
             items = self._deduplicate_items(items, platform='Facebook')
             logger.info(f"After deduplication: {len(items)} unique items.")
         
@@ -423,17 +417,11 @@ class SocialMediaScraper:
         try:
             logger.info(f"Processing Instagram Post {post_number}: {url}")
         
-            # ✅ Parámetros corregidos para Instagram
             run_input = {
-                "directUrls": [url],
-                "resultsType": "comments",
-                "resultsLimit": max_comments,
-                "maxComments": max_comments,  # Asegurar límite
-                "searchLimit": max_comments,  # Otro parámetro de límite
-                "addParentData": False  # Optimizar velocidad
+                "directUrls": [url], 
+                "resultsType": "comments", 
+                "resultsLimit": max_comments
             }
-            
-            logger.info(f"Instagram run_input: {run_input}")  # Debug
         
             run = self.client.actor("apify/instagram-scraper").call(run_input=run_input)
             run_status = self._wait_for_run_finish(run)
@@ -451,7 +439,7 @@ class SocialMediaScraper:
         
             logger.info(f"Extraction complete: {len(items)} items found.")
         
-            # Deduplicación manual post-extracción
+            # ✅ NUEVO: DEDUPLICACIÓN MANUAL POST-EXTRACCIÓN
             items = self._deduplicate_items(items, platform='Instagram')
             logger.info(f"After deduplication: {len(items)} unique items.")
         
@@ -472,16 +460,10 @@ class SocialMediaScraper:
         try:
             logger.info(f"Processing TikTok Post {post_number}: {url}")
         
-            # ✅ Parámetros corregidos para TikTok
             run_input = {
-                "postURLs": [self.clean_url(url)],
-                "maxCommentsPerPost": max_comments,
-                "commentsPerPost": max_comments,  # Redundancia
-                "maxRepliesPerComment": 0,  # Si solo quieres comentarios principales
-                # "maxRepliesPerComment": 100,  # Si quieres respuestas también
+                "postURLs": [self.clean_url(url)], 
+                "maxCommentsPerPost": max_comments
             }
-            
-            logger.info(f"TikTok run_input: {run_input}")  # Debug
         
             run = self.client.actor("clockworks/tiktok-comments-scraper").call(
                 run_input=run_input
@@ -501,7 +483,7 @@ class SocialMediaScraper:
         
             logger.info(f"Extraction complete: {len(items)} comments found.")
         
-            # Deduplicación manual post-extracción
+            # ✅ NUEVO: DEDUPLICACIÓN MANUAL POST-EXTRACCIÓN
             items = self._deduplicate_items(items, platform='TikTok')
             logger.info(f"After deduplication: {len(items)} unique items.")
         
@@ -1318,3 +1300,5 @@ def run_extraction():
 
 if __name__ == "__main__":
     run_extraction()
+
+
