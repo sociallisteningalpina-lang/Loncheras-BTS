@@ -4,91 +4,81 @@
 Clasificador de Temas para Comentarios de Campañas
 Personalizable por campaña/producto
 """
-
 import re
 from typing import Callable
 
-
 def create_topic_classifier() -> Callable[[str], str]:
     """
-    Retorna una función de clasificación de temas personalizada para esta campaña.
-    
-    Returns:
-        function: Función que toma un comentario (str) y retorna un tema (str)
-    
-    Usage:
-        classifier = create_topic_classifier()
-        tema = classifier("¿Dónde puedo comprar este producto?")
-        # tema = 'Preguntas sobre el Producto'
+    Retorna una función de clasificación de temas personalizada para la campaña 
+    Back to School Alpina (Yogo Yogo, Alpinito).
     """
     
     def classify_topic(comment: str) -> str:
-        """
-        Clasifica un comentario en un tema específico basado en patrones regex.
+        comment_lower = str(comment).lower().strip()
         
-        Args:
-            comment: Texto del comentario a clasificar
+        # 1. CRÍTICA CORPORATIVA Y LABORAL (Muy presente en tus datos)
+        if re.search(
+            r'instalaciones|empresa|esclavistas|ministerio|trabajo|'
+            r'maldad|justicia|dinero sucio|cancelen|saquen volando',
+            comment_lower
+        ):
+            return 'Crítica Corporativa / Laboral'
             
-        Returns:
-            str: Nombre del tema asignado
-        """
-        comment_lower = str(comment).lower()
-        
-        # CATEGORÍA 1: Preguntas sobre el Producto
+        # 2. INGREDIENTES Y SALUD (Azúcar y Nutrición)
         if re.search(
-            r'\bprecio\b|\bcu[aá]nto vale\b|d[oó]nde|c[oó]mo consigo|'
-            r'duda|pregunta|comprar|tiendas|disponible|sirve para|'
-            r'c[oó]mo se toma|tiene az[uú]car|valor',
-            comment_lower
-        ):
-            return 'Preguntas sobre el Producto'
-        
-        # CATEGORÍA 2: Comparación con Kéfir Casero/Artesanal
-        if re.search(
-            r'b[úu]lgaros|n[oó]dulos|en casa|casero|artesanal|'
-            r'preparo yo|vendo el cultivo|hecho por mi',
-            comment_lower
-        ):
-            return 'Comparación con Kéfir Casero/Artesanal'
-        
-        # CATEGORÍA 3: Ingredientes y Salud
-        if re.search(
-            r'aditivos|almid[oó]n|preservantes|lactosa|microbiota|'
-            r'flora intestinal|saludable|bacterias|vivas|gastritis|'
-            r'colon|helicobacter|az[uú]car añadid[oa]s',
+            r'az[uú]car|qu[ií]micos?|nutri|golosinas?|saludable|'
+            r'daño|veneno|aditivos|colorantes',
             comment_lower
         ):
             return 'Ingredientes y Salud'
-        
-        # CATEGORÍA 4: Competencia y Disponibilidad
+            
+        # 3. CALIDAD Y PROCESOS DE PRODUCCIÓN
         if re.search(
-            r'pasco|\b[eé]xito\b|\bara\b|ol[ií]mpica|d1|'
-            r'copia de|no lo venden|no llega|no lo encuentro|no hay en',
+            r'reproceso|leche saborizada|vencido|calidad|sabor a',
             comment_lower
         ):
-            return 'Competencia y Disponibilidad'
-        
-        # CATEGORÍA 5: Opinión General del Producto
+            return 'Calidad y Procesos'
+            
+        # 4. PREGUNTAS SOBRE EL PRODUCTO
         if re.search(
-            r'rico|bueno|excelente|gusta|mejor|delicioso|espectacular|'
-            r'encanta|s[úu]per|feo|horrible|mal[ií]simo|sabe a',
+            r'precio|cu[aá]nto vale|d[oó]nde|comprar|tiendas|'
+            r'disponible|valor|puntos|promoci[oó]n',
+            comment_lower
+        ):
+            return 'Preguntas sobre el Producto'
+            
+        # 5. OPINIÓN GENERAL (Positiva o Negativa sobre el sabor)
+        if re.search(
+            r'rico|bueno|excelente|gusta|delicioso|espectacular|'
+            r'encanta|feo|horrible|mal[ií]simo|asco',
             comment_lower
         ):
             return 'Opinión General del Producto'
-        
-        # CATEGORÍA 6: Fuera de Tema / No Relevante
-        if re.search(
-            r'am[eé]n|jajaja|receta|gracias|bendiciones',
-            comment_lower
-        ) or len(comment_lower.split()) < 3:
+            
+        # 6. FUERA DE TEMA / NO RELEVANTE (Religión, Política, Emojis o palabras sueltas)
+        # Captura "Amén", "Dios", "Gloria", "Presidente" y comentarios de menos de 2 palabras
+        if (re.search(r'am[eé]n|dios|gloria|bendici[oó]n|tigre|presidente', comment_lower) 
+            or len(comment_lower.split()) < 2):
             return 'Fuera de Tema / No Relevante'
         
-        # CATEGORÍA DEFAULT: Otros
+        # CATEGORÍA DEFAULT
         return 'Otros'
     
     return classify_topic
 
+# --- Ejemplo de uso con tus datos ---
+classifier = create_topic_classifier()
 
+test_comments = [
+    "Nutritivas??? Solo azúcar",
+    "Mejore esas instalaciones",
+    "Con todo ese reproceso que le hecha a la leche saborizad",
+    "AMÉN. Gloria a Dios.",
+    "Platano"
+]
+
+for c in test_comments:
+    print(f"Comentario: {c} -> Tema: {classifier(c)}")
 # ============================================================================
 # METADATA DE LA CAMPAÑA (OPCIONAL)
 # ============================================================================
